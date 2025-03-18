@@ -4,7 +4,7 @@ import minecraftDataService from '../services/MinecraftDataService';
 import imageService from '../services/ImageService';
 import './RecipesList.css';
 
-const RecipesList = () => {
+const RecipesList = ({ searchInputRef }) => {
   const [recipes, setRecipes] = useState([]);
   const [filteredRecipes, setFilteredRecipes] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,6 +19,22 @@ const RecipesList = () => {
     e.target.src = `${process.env.PUBLIC_URL}/assets/textures/missing_texture.png`;
     e.target.classList.add('error');
   };
+
+  // Listen for changes to the search input
+  useEffect(() => {
+    if (searchInputRef && searchInputRef.current) {
+      const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
+      };
+      
+      const inputElement = searchInputRef.current;
+      inputElement.addEventListener('input', handleSearchChange);
+      
+      return () => {
+        inputElement.removeEventListener('input', handleSearchChange);
+      };
+    }
+  }, [searchInputRef]);
 
   // Initialize minecraft data service
   useEffect(() => {
@@ -61,12 +77,13 @@ const RecipesList = () => {
       }
       
       // Filter by search term
-      if (searchTerm.trim()) {
+      if (searchTerm && searchTerm.trim()) {
+        const lowerSearchTerm = searchTerm.toLowerCase();
         filtered = filtered.filter(recipe => 
-          recipe.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          recipe.name.toLowerCase().includes(lowerSearchTerm) ||
           recipe.materials.some(material => 
-            material.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            material.displayName.toLowerCase().includes(searchTerm.toLowerCase())
+            material.name.toLowerCase().includes(lowerSearchTerm) ||
+            (material.displayName && material.displayName.toLowerCase().includes(lowerSearchTerm))
           )
         );
       }
@@ -76,11 +93,6 @@ const RecipesList = () => {
     
     filterRecipes();
   }, [searchTerm, selectedCategory, recipes]);
-
-  // Handle search input changes
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-  };
 
   // Handle category selection
   const handleCategoryChange = (category) => {
@@ -129,40 +141,26 @@ const RecipesList = () => {
 
   return (
     <div className="recipes-list-container">
-      <h2>Minecraft Crafting Recipes</h2>
-      
-      <div className="recipes-controls">
-        <div className="search-box">
-          <input 
-            type="text" 
-            className="minecraft-input" 
-            placeholder="Search recipes..." 
-            value={searchTerm}
-            onChange={handleSearch}
-          />
+      <div className="categories-filter">
+        <div 
+          className={`category-button ${selectedCategory === 'all' ? 'active' : ''}`}
+          onClick={() => handleCategoryChange('all')}
+        >
+          All ({categories.all || 0})
         </div>
-        
-        <div className="categories-filter">
-          <div 
-            className={`category-button ${selectedCategory === 'all' ? 'active' : ''}`}
-            onClick={() => handleCategoryChange('all')}
-          >
-            All ({categories.all || 0})
-          </div>
-          {Object.entries(categories)
-            .filter(([category]) => category !== 'all' && categories[category] > 0)
-            .sort((a, b) => b[1] - a[1]) // Sort by count descending
-            .map(([category, count]) => (
-              <div 
-                key={category}
-                className={`category-button ${selectedCategory === category ? 'active' : ''}`}
-                onClick={() => handleCategoryChange(category)}
-              >
-                {category.charAt(0).toUpperCase() + category.slice(1)} ({count})
-              </div>
-            ))
-          }
-        </div>
+        {Object.entries(categories)
+          .filter(([category]) => category !== 'all' && categories[category] > 0)
+          .sort((a, b) => b[1] - a[1]) // Sort by count descending
+          .map(([category, count]) => (
+            <div 
+              key={category}
+              className={`category-button ${selectedCategory === category ? 'active' : ''}`}
+              onClick={() => handleCategoryChange(category)}
+            >
+              {category.charAt(0).toUpperCase() + category.slice(1)} ({count})
+            </div>
+          ))
+        }
       </div>
       
       {isLoading ? (

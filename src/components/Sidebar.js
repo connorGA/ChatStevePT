@@ -7,6 +7,7 @@ const Sidebar = ({ isOpen, content, toggleSidebar }) => {
   const [width, setWidth] = useState(380); // Default width
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef(null);
+  const searchInputRef = useRef(null);
   const minWidth = 300; // Minimum sidebar width
   const maxWidth = 600; // Maximum sidebar width
 
@@ -32,6 +33,17 @@ const Sidebar = ({ isOpen, content, toggleSidebar }) => {
       }
     }
   };
+
+  // Focus the search input when sidebar opens
+  useEffect(() => {
+    if (isOpen && searchInputRef.current) {
+      // Delay to ensure the sidebar is fully rendered and visible
+      setTimeout(() => {
+        searchInputRef.current.focus();
+        console.log("Focusing sidebar search input");
+      }, 300);
+    }
+  }, [isOpen, content]);
 
   // Handle mouse events for resizing
   useEffect(() => {
@@ -63,16 +75,40 @@ const Sidebar = ({ isOpen, content, toggleSidebar }) => {
       ref={sidebarRef}
       className={`sidebar ${isOpen ? 'open' : ''}`} 
       style={{ width: isOpen ? `${width}px` : '0' }}
+      onClick={(e) => e.stopPropagation()} 
     >
       <div className="sidebar-header">
         <div className="sidebar-title">{getContentTitle()}</div>
-        <button className="sidebar-close-btn" onClick={toggleSidebar}>×</button>
+        <button 
+          className="sidebar-close-btn" 
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleSidebar();
+          }}
+        >×</button>
       </div>
       
       <div className="resize-handle" onMouseDown={startResizing}></div>
       
-      <div className="sidebar-content">
-        {content === 'recipes' && <RecipesList />}
+      <div className="sidebar-content" onClick={(e) => e.stopPropagation()}>
+        {content === 'recipes' && (
+          <div className="recipes-container">
+            <div className="search-box">
+              <input 
+                ref={searchInputRef}
+                type="text" 
+                className="minecraft-input sidebar-search" 
+                placeholder="Search recipes..." 
+                onClick={(e) => e.stopPropagation()}
+                onFocus={(e) => {
+                  e.stopPropagation();
+                  console.log("Sidebar search focused");
+                }}
+              />
+            </div>
+            <RecipesList searchInputRef={searchInputRef} />
+          </div>
+        )}
         {content === 'stats' && <PlayerStats />}
       </div>
     </div>

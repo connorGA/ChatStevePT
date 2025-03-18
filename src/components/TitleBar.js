@@ -1,6 +1,5 @@
 // src/components/TitleBar.js
-import React, { useState } from 'react';
-const { remote } = window.require ? window.require('electron') : { remote: null };
+import React, { useState, useEffect } from 'react';
 
 const TitleBar = ({ 
   toggleSidebar, 
@@ -11,21 +10,15 @@ const TitleBar = ({
   const [showSidebarMenu, setShowSidebarMenu] = useState(false);
 
   const handleClose = () => {
-    if (remote) {
-      remote.getCurrentWindow().hide();
+    if (window.electron) {
+      window.electron.hideWindow();
     }
   };
 
   const handleMinimize = () => {
-    if (remote) {
-      remote.getCurrentWindow().minimize();
+    if (window.electron && window.electron.send) {
+      window.electron.send('minimize-window');
     }
-  };
-
-  // Toggle sidebar menu display
-  const toggleSidebarMenu = (e) => {
-    e.stopPropagation();
-    setShowSidebarMenu(!showSidebarMenu);
   };
 
   // Close sidebar menu when clicking elsewhere
@@ -35,14 +28,8 @@ const TitleBar = ({
     }
   };
 
-  // Set content type and close menu
-  const setSidebarContent = (contentType) => {
-    onChangeSidebarContent(contentType);
-    setShowSidebarMenu(false);
-  };
-
   // Add event listener for closing menu
-  React.useEffect(() => {
+  useEffect(() => {
     document.addEventListener('click', handleDocumentClick);
     return () => {
       document.removeEventListener('click', handleDocumentClick);
@@ -58,36 +45,16 @@ const TitleBar = ({
         <div className="title-bar-button close-button" onClick={handleClose}></div>
       </div>
       
-      <div className="sidebar-controls">
-        <div className="sidebar-dropdown" onClick={(e) => toggleSidebarMenu(e)}>
-          <button className={`sidebar-button ${isSidebarOpen ? 'active' : ''}`}>
-            {isSidebarOpen ? currentSidebarContent.charAt(0).toUpperCase() + currentSidebarContent.slice(1) : '☰'}
-          </button>
-          
-          {showSidebarMenu && (
-            <div className="sidebar-menu">
-              <div 
-                className={`sidebar-menu-item ${currentSidebarContent === 'recipes' ? 'active' : ''}`}
-                onClick={() => setSidebarContent('recipes')}
-              >
-                Crafting Recipes
-              </div>
-              <div 
-                className={`sidebar-menu-item ${currentSidebarContent === 'stats' ? 'active' : ''}`}
-                onClick={() => setSidebarContent('stats')}
-              >
-                Player Stats
-              </div>
-              <div 
-                className="sidebar-menu-item"
-                onClick={toggleSidebar}
-              >
-                {isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
+      {/* Simplified direct sidebar toggle button */}
+      <button 
+        className="minecraft-btn sidebar-toggle-btn" 
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleSidebar();
+        }}
+      >
+        {isSidebarOpen ? 'Close Sidebar' : 'Crafting & Stats'}
+      </button>
     </div>
   );
 };

@@ -13,7 +13,7 @@ function App() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [sidebarContent, setSidebarContent] = useState('recipes');
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
+  const [focusMode, setFocusMode] = useState(true);
   const [isVisible, setIsVisible] = useState(true);
   const messagesEndRef = useRef(null);
 
@@ -40,19 +40,6 @@ function App() {
       
       window.electron.receive('visibility-changed', (isWindowVisible) => {
         setIsVisible(isWindowVisible);
-        
-        // When visibility changes, handle game pause/unpause
-        if (isWindowVisible) {
-          // We're showing the window, pause the game
-          if (window.electron.pauseGame) {
-            window.electron.pauseGame();
-          }
-        } else {
-          // We're hiding the window, unpause the game
-          if (window.electron.unpauseGame) {
-            window.electron.unpauseGame();
-          }
-        }
       });
     }
   }, []);
@@ -85,12 +72,15 @@ function App() {
     }, 500);
   };
 
+  // Clear and explicit toggle function
   const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
+    console.log(`Toggling sidebar from ${isSidebarOpen} to ${!isSidebarOpen}`);
+    setIsSidebarOpen(prev => !prev);
   };
   
   const handleSidebarContentChange = (content) => {
     setSidebarContent(content);
+    // Always open the sidebar when content type changes
     if (!isSidebarOpen) {
       setIsSidebarOpen(true);
     }
@@ -100,22 +90,24 @@ function App() {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isVisible) {
-        // If ESC is pressed and our window is visible, hide it and unpause the game
-        if (window.electron && window.electron.send) {
-          window.electron.send('unpause-game');
-          // Hide the window after a short delay
-          setTimeout(() => {
-            if (window.electron.send) {
-              window.electron.send('hide-window');
-            }
-          }, 50);
+        // If sidebar is open, close it first
+        if (isSidebarOpen) {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsSidebarOpen(false);
+          return;
+        }
+        
+        // Otherwise hide the window
+        if (window.electron && window.electron.hideWindow) {
+          window.electron.hideWindow();
         }
       }
     };
     
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isVisible]);
+  }, [isVisible, isSidebarOpen]);
 
   return (
     <div className={`app-container ${focusMode ? 'focus-active' : ''} ${isVisible ? 'app-visible' : 'app-hidden'}`}>
@@ -132,6 +124,7 @@ function App() {
           messages={messages} 
           onSendMessage={handleSendMessage} 
           messagesEndRef={messagesEndRef}
+          disabled={isSidebarOpen}
         />
         
         <Sidebar 
