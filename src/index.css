@@ -1,0 +1,360 @@
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+body {
+  margin: 0;
+  font-family: 'VT323', monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: transparent;
+  overflow: hidden;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Minecraft-inspired styling */
+:root {
+  --dirt-brown: #866043;
+  --grass-green: #5d8a54;
+  --stone-gray: #828282;
+  --water-blue: #3a75c4;
+  --coal-black: #303030;
+  --bedrock-dark: #1d1c1c;
+  --sand-yellow: #dbd27d;
+}
+
+.minecraft-btn {
+  background-color: var(--grass-green);
+  border: 3px solid #000;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
+  color: white;
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  padding: 6px 12px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.minecraft-btn:hover {
+  background-color: #6da561;
+  box-shadow: 0 0 8px rgba(93, 138, 84, 0.6);
+}
+
+.minecraft-btn:active {
+  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.3);
+  transform: translate(2px, 2px);
+}
+
+.minecraft-input {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 2px solid var(--stone-gray);
+  color: white;
+  font-family: 'VT323', monospace;
+  font-size: 16px;
+  padding: 8px;
+  position: relative;
+  z-index: 101;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.minecraft-input:focus {
+  outline: none;
+  border-color: var(--grass-green);
+  box-shadow: 0 0 8px rgba(93, 138, 84, 0.7);
+}
+
+.pixel-border {
+  image-rendering: pixelated;
+  border-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAJCAIAAABv85FHAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAMUlEQVQImWN0jJ7PQApgYmBgCA0NJUUFIyMjdlY4gkNKKjrcG4yYTWBgYJCXl8emAgBgfQeNNnGQIwAAAABJRU5ErkJggg==') 4 repeat;
+}
+
+/* App container styling */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  backdrop-filter: blur(5px);
+  border: 2px solid var(--stone-gray);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  overflow: hidden; /* Prevent overall container overflow */
+  max-height: 100vh;
+}
+
+/* Chat container styling - updated for proper scrolling */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  position: relative;
+  z-index: 100;
+  height: 100%;
+  max-height: calc(100vh - 28px); /* Account for title bar height */
+  overflow: hidden; /* Hide container overflow */
+}
+
+/* Messages area - make it scrollable */
+.messages {
+  flex: 1;
+  overflow-y: auto; /* Enable vertical scrolling */
+  scrollbar-width: thin;
+  padding: 0;
+  padding-bottom: 15px; /* Extra padding at bottom for better visibility */
+  margin-bottom: 5px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Style scrollbars for webkit browsers */
+.messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.messages::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.messages::-webkit-scrollbar-thumb {
+  background-color: var(--stone-gray);
+  border-radius: 4px;
+}
+
+.messages::-webkit-scrollbar-thumb:hover {
+  background-color: var(--grass-green);
+}
+
+/* Message styling */
+.message {
+  margin-bottom: 10px;
+  padding: 8px;
+  border-radius: 4px;
+  max-width: 80%;
+}
+
+.user-message {
+  background-color: var(--dirt-brown);
+  color: white;
+  align-self: flex-end;
+}
+
+.bot-message {
+  background-color: var(--stone-gray);
+  color: white;
+  align-self: flex-start;
+}
+
+/* Input area styling - make it stick to bottom */
+.input-area {
+  display: flex;
+  padding: 10px;
+  background-color: rgba(0, 0, 0, 0.85);
+  border-top: 2px solid var(--bedrock-dark);
+  position: sticky;
+  bottom: 0;
+  width: calc(100% - 20px); /* Account for padding */
+  z-index: 10;
+}
+
+.input-area input {
+  flex: 1;
+  padding: 8px;
+  margin-right: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: 1px solid var(--stone-gray);
+}
+
+.input-area button {
+  background-color: var(--grass-green);
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+/* Title bar styling */
+.title-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--bedrock-dark);
+  padding: 5px 10px;
+  -webkit-app-region: drag;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  height: 28px;
+  min-height: 28px; /* Ensure a minimum height */
+}
+
+.title-bar .title {
+  font-size: 16px;
+}
+
+.title-bar-buttons {
+  display: flex;
+  -webkit-app-region: no-drag;
+}
+
+.title-bar-button {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-left: 8px;
+  cursor: pointer;
+}
+
+.close-button {
+  background-color: #ff5f57;
+}
+
+.minimize-button {
+  background-color: #ffbd2e;
+}
+
+/* Sidebar styling */
+.sidebar {
+  width: 0;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: rgba(30, 30, 30, 0.95);
+  overflow-x: hidden;
+  transition: 0.3s;
+  padding-top: 50px;
+  z-index: 100;
+  box-shadow: -4px 0 10px rgba(0, 0, 0, 0.5);
+}
+  
+/* Sidebar when open */
+.sidebar.open {
+  width: 380px; /* Increased width */
+}
+  
+/* Sidebar content */
+.sidebar-content {
+  padding: 15px;
+  color: white;
+  overflow-y: auto;
+  height: calc(100% - 50px); /* Adjust for header */
+}
+  
+/* Sidebar header area */
+.sidebar-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 40px;
+  background-color: #303030;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 15px;
+  border-bottom: 2px solid #5a5a5a;
+}
+  
+.sidebar-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #FFCC00;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+  
+/* Close button */
+.sidebar-close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+}
+  
+.sidebar-close-btn:hover {
+  color: #FFCC00;
+}
+  
+/* Resize handle */
+.resize-handle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px; /* Slightly wider for better usability */
+  height: 100%;
+  cursor: ew-resize;
+  background-color: rgba(0,0,0,0.2);
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+  
+.sidebar:hover .resize-handle {
+  opacity: 1;
+}
+  
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sidebar.open {
+    width: 100%; /* Full width on mobile */
+  }
+    
+  .resize-handle {
+    display: none; /* No resize on mobile */
+  }
+}
+
+/* Simplified focus mode indicator - now just a header */
+.focus-mode-indicator {
+  background-color: var(--bedrock-dark);
+  color: #ffcc00;
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 16px;
+  font-weight: bold;
+  border-bottom: 2px solid var(--dirt-brown);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+}
+
+.shortcut-hint {
+  font-size: 12px;
+  opacity: 0.8;
+  margin-top: 2px;
+  color: #aaaaaa;
+}
+
+/* Animation for showing/hiding */
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(20px); }
+}
+
+.app-visible {
+  animation: slideIn 0.3s forwards;
+}
+
+.app-hidden {
+  animation: slideOut 0.3s forwards;
+}
